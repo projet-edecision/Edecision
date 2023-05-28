@@ -1,0 +1,76 @@
+version: "3.9"
+services:
+  auth:
+    build: .
+    image: edecision/auth:latest
+    ports:
+      - "8081:8080"
+    environment:
+      - DB_URL=db_auth:3306
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - db_auth
+    networks:
+      - edecision_network
+
+
+  db_auth:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - SERVICE_EQUIPES=${SERVICE_EQUIPES}
+      - SERVICE_PROJETS=${SERVICE_PROJETS}
+      - SERVICE_PROPOSITIONS=${SERVICE_PROPOSITIONS}
+      - SERVICE_VOTES=${SERVICE_VOTES}
+    volumes:
+      - bd_authentification:/var/lib/mysql
+    networks:
+      - edecision_network
+
+  #Oauth
+
+  keycloak:
+    image: jboss/keycloak
+    environment:
+      MYSQL_USER: keycloak
+      MYSQL_DATABASE: keycloak
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+      KEYCLOAK_USER: ${KEYCLOAK_USER}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloack:/tmp
+    depends_on:
+      - db_keycloack
+    networks:
+      - edecision_network
+
+  db_keycloack:
+    image: mysql:5.7
+    volumes:
+      - bd_keycloak:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+    networks:
+      - edecision_network
+volumes:
+  bd_keycloak:
+    driver: local
+  bd_authentification:
+    driver: local
+  keycloack:
+    driver: local
+
+networks:
+  edecision_network:
+    external: true

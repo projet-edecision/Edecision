@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  projets:
+    build: .
+    image: edecision/projets:latest
+    ports:
+      - "8083:8080"
+    environment:
+      - DB_URL=db_projets:3306
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - db_projets
+    networks:
+      - edecision_network
+
+
+  db_projets:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - SERVICE_AUTHENTIFICATION=${SERVICE_AUTHENTIFICATION}
+      - SERVICE_EQUIPES=${SERVICE_EQUIPES}
+      - SERVICE_PROPOSITIONS=${SERVICE_PROPOSITIONS}
+      - SERVICE_VOTES=${SERVICE_VOTES}
+    volumes:
+      - bd_projets:/var/lib/mysql
+    networks:
+      - edecision_network
+volumes:
+  db_projets:
+    driver: local
+
+networks:
+  edecision_network:
+    external: true
