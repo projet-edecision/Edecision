@@ -28,7 +28,7 @@ services:
       - SERVICE_PROJETS=${SERVICE_PROJETS}
       - SERVICE_VOTES=${SERVICE_VOTES}
     volumes:
-      - bd_propositions:/var/lib/mysql
+      - db_propositions:/var/lib/mysql
     networks:
       - edecision_network
 volumes:
